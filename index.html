@@ -1,0 +1,776 @@
+<html><head><base href="https://discovery.chat/" target="_blank"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Discovery Chat - Salas</title><style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: 'Roboto', Arial, sans-serif;
+        background: linear-gradient(135deg, #1a237e, #3f51b5);
+        color: #fff;
+    }
+    .chat-container {
+        display: flex;
+        height: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .sidebar {
+        width: 250px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+        margin-right: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    .main-chat {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .chat-header {
+        text-align: center;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .logo-title {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .logo svg {
+        width: 40px;
+        height: 40px;
+    }
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .message {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        animation: fadeIn 0.5s ease-out;
+        position: relative;
+    }
+    .message-content {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 10px 15px;
+        max-width: calc(100% - 60px);
+        margin-left: 10px;
+    }
+    .message.self {
+        flex-direction: row-reverse;
+    }
+    .message.self .message-content {
+        background: rgba(76, 175, 80, 0.3);
+        margin-left: 0;
+        margin-right: 10px;
+    }
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .input-area {
+        display: flex;
+        gap: 10px;
+    }
+    input, button {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+    }
+    button {
+        background: #4CAF50;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #nickname-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    .modal-content {
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        color: #333;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        max-width: 400px;
+        width: 90%;
+    }
+    .modal-content h2 {
+        margin-top: 0;
+        color: #1a237e;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    #nickname-input, #avatar-input, #admin-password-input {
+        margin: 20px 0;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        border: 2px solid #3f51b5;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    #nickname-input:focus, #avatar-input:focus, #admin-password-input:focus {
+        outline: none;
+        border-color: #1a237e;
+        box-shadow: 0 0 10px rgba(63, 81, 181, 0.5);
+    }
+    #change-nickname-btn, #set-nickname-btn, #admin-access-btn {
+        background: #3f51b5;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    #change-nickname-btn:hover, #set-nickname-btn:hover, #admin-access-btn:hover {
+        background: #303f9f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #change-nickname-btn {
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+    #avatar-preview {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        overflow: hidden;
+        background-color: #e0e0e0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #avatar-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .room-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    .room-list li {
+        padding: 10px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .room-list li:hover, .room-list li.active {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    .room-list li.active {
+        font-weight: bold;
+    }
+    .room-list li.restricted {
+        position: relative;
+    }
+    .room-list li.restricted::after {
+        content: '🔒';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .delete-btn {
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-left: 10px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    .delete-btn:hover {
+        background-color: #cc0000;
+    }
+    .message .delete-btn {
+        position: absolute;
+        top: 50%;
+        right: -30px;
+        transform: translateY(-50%);
+    }
+    #admin-panel {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    #admin-panel h3 {
+        margin-top: 0;
+    }
+    #vip-access-panel {
+        margin-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        padding-top: 20px;
+    }
+    #block-nickname-input, #add-banned-word-input, #grant-vip-access-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    #blocked-list, #banned-words-list, #vip-access-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 10px 0 0 0;
+    }
+    #blocked-list li, #banned-words-list li, #vip-access-list li {
+        background: rgba(255, 0, 0, 0.2);
+        padding: 5px;
+        margin-bottom: 5px;
+        border-radius: 3px;
+    }
+    #banned-words-list {
+        display: flex;
+        flex-direction: column;
+    }
+    #banned-words-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #banned-words-list button {
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    #banned-words-list button:hover {
+        background-color: #cc0000;
+    }
+    #admin-access-btn {
+        margin-top: 10px;
+        background: #ff9800;
+    }
+    #admin-access-btn:hover {
+        background: #f57c00;
+    }
+    #admin-password-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    #admin-password-modal .modal-content {
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        color: #333;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        max-width: 400px;
+        width: 90%;
+    }
+    #admin-password-modal h2 {
+        margin-top: 0;
+        color: #1a237e;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    </style></head><body>
+    <div class="chat-container">
+        <div class="sidebar">
+            <h2>Salas de Chat</h2>
+            <ul class="room-list" id="room-list">
+                <li data-room="geral" class="active">Geral</li>
+                <li data-room="tecnologia">Tecnologia</li>
+                <li data-room="descontração">Descontração</li>
+                <li data-room="eventos">Eventos</li>
+                <li data-room="vip" class="restricted">VIP (Restrito)</li>
+            </ul>
+            <button id="change-nickname-btn" onclick="showNicknameModal()">Alterar Perfil</button>
+            <button id="admin-access-btn" onclick="showAdminPasswordModal()">Acessar Painel Admin</button>
+            <div id="admin-panel" style="display: none;">
+                <h3>Admin Panel</h3>
+                <input type="text" id="block-nickname-input" placeholder="Nickname to block">
+                <button onclick="toggleBlockNickname()">Block/Unblock</button>
+                <ul id="blocked-list"></ul>
+                <div id="banned-words-panel">
+                    <h3>Palavras Proibidas</h3>
+                    <input type="text" id="add-banned-word-input" placeholder="Adicionar palavra proibida">
+                    <button onclick="addBannedWord()">Adicionar</button>
+                    <ul id="banned-words-list"></ul>
+                </div>
+                <div id="vip-access-panel">
+                    <h3>Acesso VIP</h3>
+                    <input type="text" id="grant-vip-access-input" placeholder="Nickname para conceder acesso VIP">
+                    <button onclick="toggleVIPAccess()">Conceder/Revogar Acesso VIP</button>
+                    <ul id="vip-access-list"></ul>
+                </div>
+                <button onclick="loadDataFromFile()">Load Data from File</button>
+            </div>
+        </div>
+        <div class="main-chat">
+            <div class="chat-header">
+                <div class="logo-title">
+                    <div class="logo">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3f51b5">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                    </div>
+                    <h1>Discovery Chat - <span id="current-room">Geral</span></h1>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="nickname-modal">
+        <div class="modal-content">
+            <h2>Configure seu perfil</h2>
+            <div id="avatar-preview">
+                <img id="avatar-image" src="https://via.placeholder.com/100" alt="Avatar preview">
+            </div>
+            <input type="text" id="avatar-input" placeholder="URL da imagem de perfil">
+            <input type="text" id="nickname-input" placeholder="Seu nickname" maxlength="20">
+            <button id="set-nickname-btn" onclick="setNickname()">Entrar no chat</button>
+        </div>
+    </div>
+    
+    <div id="admin-password-modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Acesso ao Painel Admin</h2>
+            <input type="password" id="admin-password-input" placeholder="Senha do Admin">
+            <button onclick="checkAdminPassword()">Entrar</button>
+        </div>
+    </div>
+    
+    <script>
+    let nickname = '';
+    let avatarURL = '';
+    let isAdmin = false;
+    let blockedNicknames = new Set();
+    let bannedWords = ['palavrão', 'ofensa', 'insulto']; 
+    let currentRoom = 'geral';
+    let messages = {
+        geral: [],
+        tecnologia: [],
+        descontração: [],
+        eventos: [],
+        vip: []
+    };
+    let vipAccess = new Set();
+    
+    function showNicknameModal() {
+        document.getElementById('nickname-modal').style.display = 'flex';
+        document.getElementById('nickname-input').focus();
+    }
+    
+    function setNickname() {
+        const nicknameInput = document.getElementById('nickname-input');
+        const avatarInput = document.getElementById('avatar-input');
+        const newNickname = nicknameInput.value.trim();
+        const newAvatarURL = avatarInput.value.trim();
+        
+        if (newNickname && newAvatarURL) {
+            const oldNickname = nickname;
+            nickname = newNickname;
+            avatarURL = newAvatarURL;
+            isAdmin = false; // Reset admin status
+            document.getElementById('nickname-modal').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById('banned-words-panel').style.display = 'none';
+            document.getElementById('vip-access-panel').style.display = 'none';
+            if (oldNickname) {
+                addMessage('Sistema', `${oldNickname} atualizou seu perfil.`);
+            } else {
+                addMessage('Sistema', `Bem-vindo ao chat, ${nickname}!`);
+            }
+        } else {
+            alert("Por favor, preencha tanto o nickname quanto a URL da imagem de perfil.");
+        }
+    }
+    
+    function showAdminPasswordModal() {
+        document.getElementById('admin-password-modal').style.display = 'flex';
+        document.getElementById('admin-password-input').focus();
+    }
+    
+    function checkAdminPassword() {
+        const passwordInput = document.getElementById('admin-password-input');
+        const password = passwordInput.value.trim();
+        
+        if (password === '1234') {
+            isAdmin = true;
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('banned-words-panel').style.display = 'block';
+            document.getElementById('vip-access-panel').style.display = 'block';
+            document.getElementById('admin-password-modal').style.display = 'none';
+            updateBannedWordsList();
+            updateVIPAccessList();
+            alert('Acesso de administrador concedido!');
+        } else {
+            alert('Senha incorreta. Tente novamente.');
+        }
+        passwordInput.value = '';
+    }
+    
+    function saveDataToFile() {
+        const data = JSON.stringify({
+            messages,
+            blockedNicknames: Array.from(blockedNicknames),
+            bannedWords,
+            vipAccess: Array.from(vipAccess)
+        });
+    
+        fetch('/save-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: data
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log('Data saved successfully:', result);
+        })
+        .catch(error => {
+            console.error('Error saving data:', error);
+        });
+    }
+    
+    function loadDataFromServer() {
+        fetch('/load-data')
+        .then(response => response.json())
+        .then(data => {
+            messages = data.messages;
+            blockedNicknames = new Set(data.blockedNicknames);
+            bannedWords = data.bannedWords;
+            vipAccess = new Set(data.vipAccess);
+            displayMessages();
+            updateBlockedList();
+            updateBannedWordsList();
+            updateVIPAccessList();
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDataFromServer();
+        showNicknameModal();
+    });
+    
+    function toggleBlockNickname() {
+        const nicknameToBlock = document.getElementById('block-nickname-input').value.trim().toLowerCase();
+        if (nicknameToBlock) {
+            if (blockedNicknames.has(nicknameToBlock)) {
+                blockedNicknames.delete(nicknameToBlock);
+                addMessage('Sistema', `O nickname ${nicknameToBlock} foi desbloqueado.`, false, 'https://via.placeholder.com/40?text=S');
+            } else {
+                blockedNicknames.add(nicknameToBlock);
+                addMessage('Sistema', `O nickname ${nicknameToBlock} foi bloqueado.`, false, 'https://via.placeholder.com/40?text=S');
+            }
+            updateBlockedList();
+            document.getElementById('block-nickname-input').value = '';
+            saveDataToFile();
+        }
+    }
+    
+    function addBannedWord() {
+        const wordInput = document.getElementById('add-banned-word-input');
+        const word = wordInput.value.trim().toLowerCase();
+        if (word && !bannedWords.includes(word)) {
+            bannedWords.push(word);
+            updateBannedWordsList();
+            wordInput.value = '';
+            saveDataToFile();
+        }
+    }
+    
+    function removeBannedWord(word) {
+        bannedWords = bannedWords.filter(w => w !== word);
+        updateBannedWordsList();
+        saveDataToFile();
+    }
+    
+    function updateBannedWordsList() {
+        const list = document.getElementById('banned-words-list');
+        list.innerHTML = '';
+        bannedWords.forEach(word => {
+            const li = document.createElement('li');
+            li.textContent = word;
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'X';
+            deleteBtn.onclick = () => removeBannedWord(word);
+            li.appendChild(deleteBtn);
+            list.appendChild(li);
+        });
+    }
+    
+    function updateBlockedList() {
+        const blockedList = document.getElementById('blocked-list');
+        blockedList.innerHTML = '';
+        blockedNicknames.forEach(nick => {
+            const li = document.createElement('li');
+            li.textContent = nick;
+            blockedList.appendChild(li);
+        });
+    }
+    
+    function containsBannedWord(message) {
+        return bannedWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
+    }
+    
+    function isNicknameBlocked(nick) {
+        return blockedNicknames.has(nick.toLowerCase());
+    }
+    
+    function addMessage(sender, text, isSelf = false, avatar = '') {
+        const message = { 
+            id: Date.now() + Math.random().toString(36).substr(2, 9), 
+            sender, 
+            text, 
+            isSelf, 
+            avatar 
+        };
+        if (!isNicknameBlocked(sender) && !containsBannedWord(text)) {
+            messages[currentRoom].push(message);
+            displayMessages();
+            saveDataToFile();
+        }
+    }
+    
+    function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+        if (message) {
+            if (isNicknameBlocked(nickname)) {
+                alert('Seu nickname está bloqueado. Você não pode enviar mensagens.');
+            } else if (containsBannedWord(message)) {
+                alert('Sua mensagem contém palavras proibidas e não será enviada.');
+                messageInput.value = '';
+            } else {
+                addMessage(nickname, message, true, avatarURL);
+                messageInput.value = '';
+            }
+        }
+    }
+    
+    function deleteMessage(messageId) {
+        messages[currentRoom] = messages[currentRoom].filter(msg => msg.id !== messageId);
+        displayMessages();
+        saveDataToFile();
+    }
+    
+    function displayMessages() {
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = '';
+        messages[currentRoom].forEach(message => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            if (message.isSelf) {
+                messageElement.classList.add('self');
+            }
+            
+            const avatarElement = document.createElement('div');
+            avatarElement.classList.add('user-avatar');
+            const avatarImg = document.createElement('img');
+            avatarImg.src = message.avatar || 'https://via.placeholder.com/40';
+            avatarImg.alt = `${message.sender}'s avatar`;
+            avatarElement.appendChild(avatarImg);
+            
+            const contentElement = document.createElement('div');
+            contentElement.classList.add('message-content');
+            contentElement.textContent = `${message.sender}: ${message.text}`;
+            
+            messageElement.appendChild(avatarElement);
+            messageElement.appendChild(contentElement);
+            
+            if (isAdmin && !message.isSelf) {
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'X';
+                deleteButton.classList.add('delete-btn');
+                deleteButton.onclick = () => deleteMessage(message.id);
+                messageElement.appendChild(deleteButton);
+            }
+            
+            chatMessages.appendChild(messageElement);
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function changeRoom(room) {
+        if (room === 'vip' && !isAdmin && !vipAccess.has(nickname.toLowerCase())) {
+            alert('Acesso negado. Esta sala é restrita.');
+            return;
+        }
+        currentRoom = room;
+        document.getElementById('current-room').textContent = room.charAt(0).toUpperCase() + room.slice(1);
+        displayMessages();
+        updateActiveRoom();
+        
+        if (room === 'descontração') {
+            showAgeWarning();
+        } else if (room === 'vip') {
+            addMessage('Sistema', 'Bem-vindo à sala VIP! Este é um espaço exclusivo para membros autorizados.', false, 'https://via.placeholder.com/40?text=S');
+        } else if (room === 'eventos') {
+            addMessage('Sistema', 'Bem-vindo à sala de Eventos! Fique por dentro das novidades e atividades especiais.', false, 'https://via.placeholder.com/40?text=S');
+        }
+    }
+    
+    function showAgeWarning() {
+        addMessage('Sistema', 'Aviso: Esta sala é destinada a maiores de 18 anos. Por favor, respeite as regras e os outros usuários.', false, 'https://via.placeholder.com/40?text=S');
+    }
+    
+    function updateActiveRoom() {
+        const roomList = document.getElementById('room-list');
+        const rooms = roomList.getElementsByTagName('li');
+        for (let room of rooms) {
+            if (room.dataset.room === currentRoom) {
+                room.classList.add('active');
+            } else {
+                room.classList.remove('active');
+            }
+        }
+    }
+    
+    function toggleVIPAccess() {
+        const nicknameInput = document.getElementById('grant-vip-access-input');
+        const nickname = nicknameInput.value.trim().toLowerCase();
+        if (nickname) {
+            if (vipAccess.has(nickname)) {
+                vipAccess.delete(nickname);
+                addMessage('Sistema', `Acesso VIP revocado para ${nickname}.`, false, 'https://via.placeholder.com/40?text=S');
+            } else {
+                vipAccess.add(nickname);
+                addMessage('Sistema', `Acesso VIP concedido para ${nickname}.`, false, 'https://via.placeholder.com/40?text=S');
+            }
+            updateVIPAccessList();
+            nicknameInput.value = '';
+            saveDataToFile();
+        }
+    }
+    
+    function updateVIPAccessList() {
+        const list = document.getElementById('vip-access-list');
+        list.innerHTML = '';
+        vipAccess.forEach(nick => {
+            const li = document.createElement('li');
+            li.textContent = nick;
+            list.appendChild(li);
+        });
+    }
+    
+    document.getElementById('message-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+    
+    document.getElementById('nickname-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            setNickname();
+        }
+    });
+    
+    document.getElementById('avatar-input').addEventListener('input', function(e) {
+        const previewImg = document.getElementById('avatar-image');
+        previewImg.src = e.target.value || 'https://via.placeholder.com/100';
+    });
+    
+    document.getElementById('room-list').addEventListener('click', function(e) {
+        if (e.target.tagName === 'LI') {
+            changeRoom(e.target.dataset.room);
+        }
+    });
+    
+    // Simular algumas mensagens iniciais
+    setTimeout(() => {
+        addMessage('Sistema', 'Bem-vindo à sala Geral!', false, 'https://via.placeholder.com/40?text=S');
+        changeRoom('tecnologia');
+        addMessage('Sistema', 'Bem-vindo à sala de Tecnologia!', false, 'https://via.placeholder.com/40?text=S');
+        changeRoom('descontração');
+        addMessage('Sistema', 'Bem-vindo à sala de Descontração!', false, 'https://via.placeholder.com/40?text=S');
+        changeRoom('eventos');
+        addMessage('Sistema', 'Bem-vindo à sala de Eventos!', false, 'https://via.placeholder.com/40?text=S');
+        changeRoom('geral');
+    }, 1000);
+    
+    // Mostrar o modal de nickname ao carregar a página
+    showNicknameModal();
+    </script>
+    </body></html>
